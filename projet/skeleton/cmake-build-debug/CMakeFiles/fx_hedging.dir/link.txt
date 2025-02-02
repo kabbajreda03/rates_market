@@ -1,2 +1,0 @@
-/usr/bin/ar qc libfx_hedging.a CMakeFiles/fx_hedging.dir/json_reader.cpp.o CMakeFiles/fx_hedging.dir/MonteCarlo.cpp.o CMakeFiles/fx_hedging.dir/TimeGrid.cpp.o
-/usr/bin/ranlib libfx_hedging.a
