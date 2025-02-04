@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include "json_reader.hpp"
 
+#include "FixedTime.hpp"
+#include "GridTime.hpp"
+#include "json_reader.hpp"
+#include "InterestRateModel.hpp"
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -26,6 +29,12 @@ int main(int argc, char **argv) {
         std::string currencyId(jsonCurrency.at("id").get<std::string>());
         double rf = jsonCurrency.at("InterestRate").get<double>();
         double realVolatility = jsonCurrency.at("Volatility").get<double>();
+        if (currencyId == "eur") {
+            InterestRateModel domestic(rf);
+        }
+        else {
+            InterestRateModel foreign(rf);
+        }
         std::cout << "interest rate " << rf << std::endl;
         std::cout << "real volatility " << realVolatility << std::endl;
     }
@@ -42,7 +51,11 @@ int main(int argc, char **argv) {
     int numberOfDaysPerYear = jsonParams.at("NumberOfDaysInOneYear").get<int>();
     double maturity = jsonParams.at("Option").at("MaturityInDays").get<int>() / double (numberOfDaysPerYear);
     std::string label = jsonParams.at("Option").at("Type").get<std::string>();
+    PnlVect* datesInDays;
+    jsonParams.at("Option").at("FixingDatesInDays").at("DatesInDays").get_to(datesInDays);
 
     pnl_mat_free(&correlation);
     std::exit(0);
+    PnlMat* past = pnl_mat_create_from_scalar(1, 1, 100);
+    GridTime* gridTime = new GridTime(datesInDays);
 }

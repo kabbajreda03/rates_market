@@ -2,10 +2,20 @@
 #include "InterestRateModel.hpp"
 
 // Constructeur
-Currency::Currency(double domesticRate, double foreignRate)
-    : domesticInterestRate(domesticRate, foreignRate) {}
+Currency::Currency(PnlVect* volatility, InterestRateModel domesticRate, InterestRateModel foreignRate)
+    : RiskyDynamics(domesticRate.interestRate - foreignRate.interestRate, volatility),
+      foreignInterestRate(foreignRate),
+      domesticInterestRate(domesticRate) {}
 
-// Méthode pour obtenir le taux de change
-double Currency::getExchangeRate(double t) const {
-    return domesticInterestRate.discount(0, t) * foreignInterestRate.discount(0, t);
+Currency::Currency()
+    : RiskyDynamics(),
+      foreignInterestRate(InterestRateModel(0.0)),
+      domesticInterestRate(InterestRateModel(0.0)) {}
+
+InterestRateModel Currency::getDomesticInterestRate() const {
+  	return domesticInterestRate;
+}
+
+InterestRateModel Currency::getForeignInterestRate() const {
+  	return foreignInterestRate;
 }

@@ -1,25 +1,43 @@
-#ifndef GLOBAL_MODEL_HPP
-#define GLOBAL_MODEL_HPP
+#ifndef GLOBALMODEL_HPP
+#define GLOBALMODEL_HPP
 
-#include "RiskyAsset.hpp"
-#include "Currency.hpp"
-#include "ITimeGrid.hpp"
 #include <vector>
-#include <pnl/pnl_matrix.h>
+#include "RiskyAsset.hpp"  // Inclure pour RiskyAssets
+#include "Currency.hpp"    // Inclure pour Currency
+#include "ITimeGrid.hpp"   // Inclure pour ITimeGrid
+#include "InterestRateModel.hpp"  // Inclure pour InterestRateModel
 
 class GlobalModel {
 public:
+    // Vecteur d'actifs risqués
     std::vector<RiskyAsset> assets;
+
+    // Vecteur de devises
     std::vector<Currency> currencies;
+
+    // Grille de temps pour la surveillance
+    ITimeGrid* monitoringTimeGrid;
+
+    // Modèle de taux d'intérêt domestique
     InterestRateModel domesticInterestRate;
-    ITimeGrid monitoringTimeGrid;
+
+    const PnlMat* correlationMatrix;
+
+    PnlMat* choleskyMatrix;
 
     // Constructeur
-    GlobalModel(std::vector<RiskyAsset> assets, std::vector<Currency> currencies, InterestRateModel domesticInterestRate)
-        : assets(assets), currencies(currencies), domesticInterestRate(domesticInterestRate) {}
+    GlobalModel(
+        const std::vector<RiskyAsset>& assets,
+        const std::vector<Currency>& currencies,
+        ITimeGrid* monitoringTimeGrid,
+        const InterestRateModel& domesticInterestRate,
+        const PnlMat* correlationMatrix
+    );
 
-    // Méthode pour simuler l'ensemble du marché et remplir le chemin des actifs
-    void simulateMarket(PnlMat* path, double t, const PnlMat* past, PnlRng* rng, double T, int N) const;
+    // Destructeur
+    ~GlobalModel();
+
+    void simulate_paths(PnlMat* past, PnlMat* path, int t, PnlRng* rng);
 };
 
 #endif

@@ -1,22 +1,21 @@
 #ifndef RISKY_ASSET_HPP
 #define RISKY_ASSET_HPP
 
-#include "Currency.hpp"
+#include "RiskyDynamics.hpp"
+#include "InterestRateModel.hpp"
 #include <pnl/pnl_vector.h>
 #include <pnl/pnl_matrix.h>
 
-class RiskyAsset {
+class RiskyAsset : public RiskyDynamics {
 public:
-    PnlVect* volatility;
-    PnlMat* choleskyMatrix;
-    Currency currency;
+    InterestRateModel domesticInterestRate;  // Attribut pour le taux d'intérêt domestique
 
     // Constructeur
-    RiskyAsset(PnlVect* vol, PnlMat* cholMatrix, const Currency& currency)
-        : volatility(vol), choleskyMatrix(cholMatrix), currency(currency) {}
+    RiskyAsset();
+    RiskyAsset(PnlVect* volatility, InterestRateModel domesticRate);
 
-    // Méthode pour simuler la trajectoire d'un actif risqué
-    void simulate(PnlMat* path, double t, const PnlMat* past, PnlRng* rng, double T, int N) const;
+    // Destructeur
+    virtual ~RiskyAsset();
 };
 
 #endif

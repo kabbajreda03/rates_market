@@ -1,40 +1,40 @@
 #ifndef ITIMEGRID_HPP
 #define ITIMEGRID_HPP
 
-#include <vector>
+#include "pnl/pnl_vector.h"
+// Enumération pour distinguer entre les différents types de grilles de temps
+enum class eGridType {
+    eFixed, // Grille avec un pas fixe
+    eGrid   // Grille définie par une liste de dates précises
+};
 
+// Classe de base virtuelle pour gérer une grille de temps
 class ITimeGrid {
 public:
-    std::vector<int> timeGrid;  // Liste des dates dans la grille de temps
 
-    // Constructeur
-    ITimeGrid(std::vector<int> grid) : timeGrid(grid) {}
+    // Type de la grille (Fixed ou Grid)
+    eGridType type;
 
-    // Méthode pour obtenir une date dans la grille par son index
-    int at(int index) const {
-        if (index < 0 || index >= timeGrid.size()) {
-            throw std::out_of_range("Index out of range");
-        }
-        return timeGrid[index];
-    }
+    // Vecteur qui contient les dates
+    PnlVect* dates;
+    int step;
+    int stop;
 
-    // Méthode pour obtenir la longueur de la grille de temps
-    int len() const {
-        return timeGrid.size();
-    }
+    ITimeGrid(eGridType type, int step, int stopDate, PnlVect* dates=nullptr);
+    virtual ~ITimeGrid();
 
-    // Méthode pour vérifier si une date existe dans la grille
-    bool has(int nDays) const {
-        for (int t : timeGrid) {
-            if (t == nDays) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // Retourne la date à un index donné
+    int at(int index) const;
 
-    // Destructeur
-    ~ITimeGrid() {}
+    // Retourne le nombre d'éléments dans la grille
+    int len() const;
+
+    // Vérifie si une date existe à l'indice donné
+    bool has(int nDays) const;
+
+    int getNextFirstIndex(int t);
+
+    ITimeGrid* CreateRealTimeGrid(ITimeGrid& theAbstTimeGrid);
 };
 
 #endif

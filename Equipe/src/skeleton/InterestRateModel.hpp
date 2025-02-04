@@ -5,23 +5,19 @@
 #include <iostream>
 
 class InterestRateModel {
-public:
-    double domesticInterestRate;
-    double foreignInterestRate;
+  public:
+
+    double interestRate;
 
     // Constructeur
-    InterestRateModel(double domesticRate, double foreignRate)
-        : domesticInterestRate(domesticRate), foreignInterestRate(foreignRate) {}
+    InterestRateModel(double rate);
 
     // Méthode pour obtenir le taux de discount entre deux dates
-    double discount(double t1, double t2) const {
-        return exp(-domesticInterestRate * (t2 - t1));
-    }
+    double discount(double t1, double t2) const;
 
     // Méthode pour obtenir la valeur d'un compte entre deux dates
-    double account(double t1, double t2) const {
-        return exp(foreignInterestRate * (t2 - t1));
-    }
+    double account(double t1, double t2) const;
+
 };
 
 #endif

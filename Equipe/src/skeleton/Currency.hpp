@@ -1,21 +1,23 @@
 #ifndef CURRENCY_HPP
 #define CURRENCY_HPP
 
+#include "RiskyDynamics.hpp"
 #include "InterestRateModel.hpp"
 
-class Currency {
+class Currency : public RiskyDynamics {
 public:
-    InterestRateModel domesticInterestRate;
     InterestRateModel foreignInterestRate;
+    InterestRateModel domesticInterestRate;
 
     // Constructeur
-    Currency(double domesticRate, double foreignRate)
-        : domesticInterestRate(domesticRate, foreignRate) {}
+    Currency(PnlVect* volatility, InterestRateModel domesticRate, InterestRateModel foreignRate);
+    Currency();
+    // Destructeur
+    virtual ~Currency();
 
     // Méthode pour obtenir le taux de change
-    double getExchangeRate(double t) const {
-        return domesticInterestRate.discount(0, t) * foreignInterestRate.discount(0, t);
-    }
+    InterestRateModel getDomesticInterestRate() const;
+    InterestRateModel getForeignInterestRate() const;
 };
 
 #endif

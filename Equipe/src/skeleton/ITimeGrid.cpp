@@ -1,25 +1,51 @@
+#include <vector>
 #include "ITimeGrid.hpp"
-#include <iostream>
+#include <string>
+#include <stdexcept>
 
-// Méthode pour obtenir une date dans la grille par son index
-int ITimeGrid::at(int index) const {
-    if (index < 0 || index >= timeGrid.size()) {
-        throw std::out_of_range("Index out of range");
-    }
-    return timeGrid[index];
-}
-
-// Méthode pour obtenir la longueur de la grille de temps
-int ITimeGrid::len() const {
-    return timeGrid.size();
-}
-
-// Méthode pour vérifier si une date existe dans la grille
-bool ITimeGrid::has(int nDays) const {
-    for (int t : timeGrid) {
-        if (t == nDays) {
-            return true;
+ITimeGrid::ITimeGrid(eGridType typeGrid, int stepDate, int stopDate, PnlVect* datesVect) :
+     type(typeGrid), step(stepDate), stop(stopDate) {
+      if (datesVect != NULL) {
+        dates = pnl_vect_copy(datesVect);
+      }
+      else {
+        dates = pnl_vect_create(stopDate / stepDate);
+        int currentStep = 0;
+        int index = 0;
+        while (currentStep < stopDate) {
+          LET(dates, index) = currentStep;
+          currentStep += stepDate;
+          index ++;
         }
+      }
+  }
+
+int ITimeGrid::at(int index) const{
+     if (index < 0 || index >= dates->size) {
+       throw std::invalid_argument("index out of range");
+     }
+     return GET(dates, index);
+}
+
+int ITimeGrid::len() const {
+     return dates->size;
+}
+
+// Vérifier si une date existe à l'indice donné
+bool ITimeGrid::has(int nDays) const {
+    for (int i = 0; i < dates->size; i++) {
+      int day = GET(dates, i);
+      if (day == nDays) {
+        return true;
+      }
     }
     return false;
+}
+
+int ITimeGrid::getNextFirstIndex(int t) {
+    int index = 0;
+    while (index < len() and GET(dates, index) <= t) {
+      index++;
+    }
+    return index;
 }

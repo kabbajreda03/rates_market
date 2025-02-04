@@ -2,7 +2,7 @@
 
 #include <list>
 #include "MonteCarlo.hpp"
-#include "TimeGrid.hpp"
+#include "ITimeGrid.hpp"
 
 class Position {
 public:
