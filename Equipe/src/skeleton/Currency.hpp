@@ -13,7 +13,7 @@ public:
     Currency(PnlVect* volatility, InterestRateModel domesticRate, InterestRateModel foreignRate);
     Currency();
     // Destructeur
-    virtual ~Currency();
+    ~Currency() override;
 
     // Méthode pour obtenir le taux de change
     InterestRateModel getDomesticInterestRate() const;

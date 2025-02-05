@@ -10,13 +10,12 @@ RiskyDynamics::RiskyDynamics(double drift, PnlVect* volatility)
 
 // Destructeur
 RiskyDynamics::~RiskyDynamics() {
-    pnl_vect_free(&volatilityVector);  // Libère la mémoire allouée pour la volatilité
+
 }
 
 // Méthode pour échantillonner la prochaine date de l'actif risqué
-void RiskyDynamics::sampleNextDate(double spot, PnlMat* path, int i, int j, int timestep, PnlVect* gaussianVector, PnlVect* choleskyLine) const {
-  double volatility = pnl_vect_sum(volatilityVector);
-  double volatilityTerm = volatility * pnl_vect_scalar_prod(choleskyLine, gaussianVector) * std::sqrt(timestep/252);
-  double driftTerm = drift * timestep/252;
+void RiskyDynamics::sampleNextDate(double spot, PnlMat* path, int i, int j, int timestep, PnlVect* gaussianVector) const {
+  double volatilityTerm = pnl_vect_scalar_prod(volatilityVector, gaussianVector) * std::sqrt(timestep/252);
+  double driftTerm = ( drift - pnl_vect_scalar_prod(volatilityVector , volatilityVector)/2) * timestep/252;
   MLET(path, i, j) = spot * std::exp(driftTerm + volatilityTerm);
 }

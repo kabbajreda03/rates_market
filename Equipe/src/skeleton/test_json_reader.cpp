@@ -5,6 +5,8 @@
 #include "GridTime.hpp"
 #include "json_reader.hpp"
 #include "InterestRateModel.hpp"
+#include "Parser.hpp"
+#include "GlobalModel.hpp"
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -14,7 +16,7 @@ int main(int argc, char **argv) {
     std::ifstream ifs(argv[1]);
     nlohmann::json jsonParams = nlohmann::json::parse(ifs);
 
-    PnlMat *correlation;
+    /**PnlMat *correlation;
     jsonParams.at("Correlations").get_to(correlation);
     pnl_mat_print(correlation);
 
@@ -57,5 +59,73 @@ int main(int argc, char **argv) {
     pnl_mat_free(&correlation);
     std::exit(0);
     PnlMat* past = pnl_mat_create_from_scalar(1, 1, 100);
-    GridTime* gridTime = new GridTime(datesInDays);
+    GridTime* gridTime = new GridTime(datesInDays);**/
+
+    Parser parser(jsonParams);
+
+    // Méthode pour imprimer les attributs de la classe
+        std::cout << "Domestic Interest Rate: " << parser.domesticInterestRate << std::endl;
+        std::cout << "Foreign Interest Rates: ";
+        pnl_vect_print(parser.foreignInterestRate);
+
+        std::cout << "Volatility Currency Vector: ";
+        pnl_vect_print(parser.volatilityCurrencyVector);
+        std::cout << std::endl;
+
+        std::cout << "Assets Currency Mapping: ";
+        for (const auto& asset : parser.assetsCurrencyMapping) {
+            std::cout << asset << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "Assets Volatility Vector: ";
+        pnl_vect_print(parser.assetsVolatilityVector);
+        std::cout << std::endl;
+
+
+        if (parser.FixingDatesManager->dates != nullptr) {
+            std::cout << "FixingDatesInDays: ";
+            pnl_vect_print(parser.FixingDatesManager->dates);
+        }
+        else {
+            std::cout << "Period: ";
+            std::cout << parser.FixingDatesManager->step << std::endl;
+        }
+        std::cout << "Option Type: ";
+        std::cout << static_cast<int>(parser.FixingDatesManager->type) << std::endl;
+
+        if (parser.OracleManager->dates != nullptr) {
+            std::cout << "OracleDates: ";
+            pnl_vect_print(parser.OracleManager->dates);
+        }
+        else {
+            std::cout << "Period: ";
+            std::cout << parser.OracleManager->step << std::endl;
+        }
+
+        std::cout << "Oracle Rebalancing Type: ";
+        std::cout << static_cast<int>(parser.OracleManager->type) << std::endl;
+        std::cout << "Number of Days in One Year: " << parser.numberOfDaysInOneYear << std::endl;
+        std::cout << "Maturity in Days: " << parser.maturityInDays << std::endl;
+        std::cout << "Strike: " << parser.strike << std::endl;
+        std::cout << "Sample Number: " << parser.sampleNb << std::endl;
+        std::cout << "Finite Difference Step: " << parser.fdStep << std::endl;
+        std::cout << "Correlation Matrix: ";
+        pnl_mat_print(parser.correlationMatrix);
+
+        std::vector<RiskyAsset> riskyAssets;
+        std::vector<Currency> currencies;
+        parser.generateCurrencies(currencies);
+        parser.generateAssets(riskyAssets);
+        InterestRateModel domesticRate(parser.domesticInterestRate);
+        GlobalModel globalModel(riskyAssets, currencies, parser.FixingDatesManager, domesticRate);
+        PnlMat* past = pnl_mat_create_from_scalar(1, 8, 5.0);
+        PnlMat* path = pnl_mat_create(3, 8);
+        PnlRng* rng = pnl_rng_create(PNL_RNG_MERSENNE);
+        pnl_rng_sseed(rng, time(NULL));
+
+        globalModel.simulate_paths(past, path, 0, rng);
+        pnl_mat_print(path);
+    std::cout << "Current Currency Vector: ";
+
 }

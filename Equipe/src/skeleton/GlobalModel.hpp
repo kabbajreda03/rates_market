@@ -21,17 +21,12 @@ public:
     // Modèle de taux d'intérêt domestique
     InterestRateModel domesticInterestRate;
 
-    const PnlMat* correlationMatrix;
-
-    PnlMat* choleskyMatrix;
-
     // Constructeur
     GlobalModel(
         const std::vector<RiskyAsset>& assets,
         const std::vector<Currency>& currencies,
         ITimeGrid* monitoringTimeGrid,
-        const InterestRateModel& domesticInterestRate,
-        const PnlMat* correlationMatrix
+        const InterestRateModel& domesticInterestRate
     );
 
     // Destructeur

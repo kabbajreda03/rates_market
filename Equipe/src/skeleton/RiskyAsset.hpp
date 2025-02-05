@@ -15,7 +15,7 @@ public:
     RiskyAsset(PnlVect* volatility, InterestRateModel domesticRate);
 
     // Destructeur
-    virtual ~RiskyAsset();
+    ~RiskyAsset() override;
 };
 
 #endif

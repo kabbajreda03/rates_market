@@ -19,3 +19,5 @@ InterestRateModel Currency::getDomesticInterestRate() const {
 InterestRateModel Currency::getForeignInterestRate() const {
   	return foreignInterestRate;
 }
+
+Currency::~Currency() {}

@@ -8,19 +8,12 @@ GlobalModel::GlobalModel(
     const std::vector<RiskyAsset>& assets,
     const std::vector<Currency>& currencies,
     ITimeGrid* monitoringTimeGrid,
-    const InterestRateModel& domesticInterestRate,
-    const PnlMat* correlationMatrix
+    const InterestRateModel& domesticInterestRate
 )
     : assets(assets),
       currencies(currencies),
       monitoringTimeGrid(monitoringTimeGrid),
-      domesticInterestRate(domesticInterestRate),
-      correlationMatrix(correlationMatrix)
-{
-        choleskyMatrix = pnl_mat_copy(correlationMatrix);
-        pnl_mat_chol(choleskyMatrix);
-
-      }
+      domesticInterestRate(domesticInterestRate) {}
 
 // Destructeur
 GlobalModel::~GlobalModel() {
@@ -36,7 +29,6 @@ void GlobalModel::simulate_paths(PnlMat* past, PnlMat* path, int t, PnlRng* rng)
     int assetsSize = assets.size();
     int currenciesSize = currencies.size();
     int index = monitoringTimeGrid->getNextFirstIndex(t);
-    PnlVect* choleskyLine = pnl_vect_new();
     if (!isMonitoringDate) {
         PnlVect* gaussianVector = pnl_vect_create(path->n);
         pnl_vect_rng_normal(gaussianVector, path->n, rng);
@@ -44,12 +36,10 @@ void GlobalModel::simulate_paths(PnlMat* past, PnlMat* path, int t, PnlRng* rng)
         pnl_mat_get_row(St, past, past->m-1);
         timestep = monitoringTimeGrid->at(index) - t;
         for (int j = 0; j < assetsSize; j++) {
-          pnl_mat_get_row(choleskyLine, choleskyMatrix, j);
-          assets[j].sampleNextDate(GET(St, j) ,path, past->m-1, j, timestep, gaussianVector, choleskyLine);
+          assets[j].sampleNextDate(GET(St, j) ,path, past->m-1, j, timestep, gaussianVector);
         }
-        for (int j = assetsSize; j < assetsSize + currenciesSize - 1; j++) {
-            pnl_mat_get_row(choleskyLine, choleskyMatrix, j);
-            currencies[j].sampleNextDate(GET(St, j), path, past->m-1, j, timestep, gaussianVector, choleskyLine);
+        for (int j = 0; j < currenciesSize; j++) {
+            currencies[j].sampleNextDate(GET(St, assetsSize+j), path, past->m-1, assetsSize+j, timestep, gaussianVector);
         }
     }
     // t is a monitoring date
@@ -58,17 +48,15 @@ void GlobalModel::simulate_paths(PnlMat* past, PnlMat* path, int t, PnlRng* rng)
       pnl_vect_rng_normal(gaussianVector, path->n, rng);
       // On respecte l'ordre des actifs comme dans le fichier .csv
       PnlVect* spots = pnl_vect_create(path->n);
-      pnl_mat_get_row(spots, past, i-1);
+      pnl_mat_get_row(spots, path, i-1);
       timestep = monitoringTimeGrid->at(index + 1) - monitoringTimeGrid->at(index);
       index++;
         for (int j = 0; j < assetsSize; j++) {
-            pnl_mat_get_row(choleskyLine, choleskyMatrix, j);
-            assets[j].sampleNextDate(GET(spots, j), path, i, j, timestep, gaussianVector, choleskyLine);
+            assets[j].sampleNextDate(GET(spots, j), path, i, j, timestep, gaussianVector);
         }
 
-        for (int j = assetsSize; j < assetsSize + currencies.size() - 1; j++) {
-            pnl_mat_get_row(choleskyLine, choleskyMatrix, j);
-            currencies[j].sampleNextDate(GET(spots, j), path, i, j, timestep, gaussianVector, choleskyLine);
+        for (int j = 0; j < currenciesSize; j++) {
+            currencies[j].sampleNextDate(GET(spots, assetsSize+j), path, i, assetsSize+j, timestep, gaussianVector);
         }
     }
 

@@ -9,10 +9,10 @@ ITimeGrid::ITimeGrid(eGridType typeGrid, int stepDate, int stopDate, PnlVect* da
         dates = pnl_vect_copy(datesVect);
       }
       else {
-        dates = pnl_vect_create(stopDate / stepDate);
+        dates = pnl_vect_create(stopDate / stepDate + 1);
         int currentStep = 0;
         int index = 0;
-        while (currentStep < stopDate) {
+        while (currentStep <= stopDate) {
           LET(dates, index) = currentStep;
           currentStep += stepDate;
           index ++;
@@ -24,7 +24,7 @@ int ITimeGrid::at(int index) const{
      if (index < 0 || index >= dates->size) {
        throw std::invalid_argument("index out of range");
      }
-     return GET(dates, index);
+     return (int) GET(dates, index);
 }
 
 int ITimeGrid::len() const {
@@ -44,8 +44,12 @@ bool ITimeGrid::has(int nDays) const {
 
 int ITimeGrid::getNextFirstIndex(int t) {
     int index = 0;
-    while (index < len() and GET(dates, index) <= t) {
+    while (index < len() and GET(dates, index) < t) {
       index++;
     }
     return index;
+}
+
+ITimeGrid::~ITimeGrid() {
+
 }

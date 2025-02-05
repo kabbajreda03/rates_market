@@ -20,7 +20,14 @@ endif()
 # Add nlohmann_json::nlohmann_json to target_link_libraries
 find_package(nlohmann_json REQUIRED)
 
-set(fxhedging_hdrs  json_reader.hpp)
+set(fxhedging_hdrs  json_reader.hpp
+        FixedTime.cpp
+        FixedTime.hpp
+        GridTime.cpp
+        GridTime.hpp
+        Parser.cpp
+        Parser.hpp
+)
 add_library(fx_hedging json_reader.cpp ${fxhedging_hdrs})
 target_link_libraries(fx_hedging ${PNL_LIBRARIES} nlohmann_json::nlohmann_json)
 
@@ -28,7 +35,8 @@ target_link_libraries(fx_hedging ${PNL_LIBRARIES} nlohmann_json::nlohmann_json)
 # target_link_libraries(test_fx_hedging fx_hedging)
 # pnl_add_postbuild(test_fx_hedging)
 
-add_executable(test_json_reader json_reader.cpp test_json_reader.cpp)
+add_executable(test_json_reader json_reader.cpp test_json_reader.cpp InterestRateModel.cpp Parser.cpp GridTime.cpp
+        FixedTime.cpp ITimeGrid.cpp GlobalModel.cpp RiskyDynamics.cpp RiskyAsset.cpp Currency.cpp )
 target_link_libraries(test_json_reader ${PNL_LIBRARIES} nlohmann_json::nlohmann_json)
 pnl_add_postbuild(test_json_reader)
 

@@ -18,7 +18,7 @@ public:
     virtual ~RiskyDynamics();
 
     // Méthode pour échantillonner la prochaine date de l'actif risqué
-    void sampleNextDate(double spot, PnlMat* path, int i, int j, int timestep, PnlVect* gaussianVector, PnlVect* choleskyLine) const;
+    void sampleNextDate(double spot, PnlMat* path, int i, int j, int timestep, PnlVect* gaussianVector) const;
 };
 
 #endif
