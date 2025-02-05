@@ -36,7 +36,16 @@ target_link_libraries(fx_hedging ${PNL_LIBRARIES} nlohmann_json::nlohmann_json)
 # pnl_add_postbuild(test_fx_hedging)
 
 add_executable(test_json_reader json_reader.cpp test_json_reader.cpp InterestRateModel.cpp Parser.cpp GridTime.cpp
-        FixedTime.cpp ITimeGrid.cpp GlobalModel.cpp RiskyDynamics.cpp RiskyAsset.cpp Currency.cpp )
+        FixedTime.cpp ITimeGrid.cpp GlobalModel.cpp RiskyDynamics.cpp RiskyAsset.cpp Currency.cpp
+        CallQuantoOption.cpp
+        BasketOption.cpp
+        CallCurrencyOption.cpp
+        ForeignAsianOption.cpp
+        ForeignPerfBasketOption.cpp
+        QuantoExchangeOption.cpp
+        MonteCarlo.cpp
+        Option.cpp
+)
 target_link_libraries(test_json_reader ${PNL_LIBRARIES} nlohmann_json::nlohmann_json)
 pnl_add_postbuild(test_json_reader)
 

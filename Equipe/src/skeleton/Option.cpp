@@ -1,9 +1,10 @@
 #include "Option.hpp"
-#include <iostream>
 
-// Exemple de surcharge de la méthode payoff
-double Option::payoff() {
-    // Implémentation simple, à remplacer selon le type d'option
-    std::cout << "Calcul du payoff non défini pour cette option." << std::endl;
-    return 0.0;
-}
+Option::Option(const std::vector<int>& assetCurrencyMapping,
+               const std::vector<InterestRateModel>& foreignInterestRates,
+               const InterestRateModel& domesticInterestRate,
+               ITimeGrid* monitoringTimeGrid)
+    : assetCurrencyMapping(assetCurrencyMapping),
+      foreignInterestRates(foreignInterestRates),
+      domesticInterestRate(domesticInterestRate),
+      monitoringTimeGrid(monitoringTimeGrid) {}

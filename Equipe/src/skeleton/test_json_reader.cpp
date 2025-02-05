@@ -7,9 +7,10 @@
 #include "InterestRateModel.hpp"
 #include "Parser.hpp"
 #include "GlobalModel.hpp"
+#include "MonteCarlo.hpp"
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
+    if (argc != 3) {
         std::cerr << "Wrong number of arguments. Exactly one argument is required" << std::endl;
         std::exit(0);
     }
@@ -61,10 +62,10 @@ int main(int argc, char **argv) {
     PnlMat* past = pnl_mat_create_from_scalar(1, 1, 100);
     GridTime* gridTime = new GridTime(datesInDays);**/
 
-    Parser parser(jsonParams);
+    Parser parser(argv[1], argv[2]);
 
     // Méthode pour imprimer les attributs de la classe
-        std::cout << "Domestic Interest Rate: " << parser.domesticInterestRate << std::endl;
+        /**std::cout << "Domestic Interest Rate: " << parser.domesticInterestRate << std::endl;
         std::cout << "Foreign Interest Rates: ";
         pnl_vect_print(parser.foreignInterestRate);
 
@@ -112,20 +113,22 @@ int main(int argc, char **argv) {
         std::cout << "Finite Difference Step: " << parser.fdStep << std::endl;
         std::cout << "Correlation Matrix: ";
         pnl_mat_print(parser.correlationMatrix);
-
+**/
         std::vector<RiskyAsset> riskyAssets;
         std::vector<Currency> currencies;
         parser.generateCurrencies(currencies);
         parser.generateAssets(riskyAssets);
         InterestRateModel domesticRate(parser.domesticInterestRate);
         GlobalModel globalModel(riskyAssets, currencies, parser.FixingDatesManager, domesticRate);
-        PnlMat* past = pnl_mat_create_from_scalar(1, 8, 5.0);
-        PnlMat* path = pnl_mat_create(3, 8);
-        PnlRng* rng = pnl_rng_create(PNL_RNG_MERSENNE);
-        pnl_rng_sseed(rng, time(NULL));
-
-        globalModel.simulate_paths(past, path, 0, rng);
-        pnl_mat_print(path);
-    std::cout << "Current Currency Vector: ";
+        PnlMat* past = pnl_mat_create(1, 1);
+        parser.generatePastMatrix(past, 0);
+        Option* option = parser.getOption();
+        MonteCarlo* mc = new MonteCarlo(option, globalModel, &parser);
+        double price = 0.0;
+        double priceStdDev = 0.0;
+        mc->priceAndDelta(past, 0, price, priceStdDev, NULL, NULL);
+        std::cout << "price: " << price << std::endl;
+        std::cout << "Standard Deviation of price: " << priceStdDev << std::endl;
+        std::cout << "THE END: " << std::endl;
 
 }

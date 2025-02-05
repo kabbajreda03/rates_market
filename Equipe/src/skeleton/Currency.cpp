@@ -3,7 +3,7 @@
 
 // Constructeur
 Currency::Currency(PnlVect* volatility, InterestRateModel domesticRate, InterestRateModel foreignRate)
-    : RiskyDynamics(domesticRate.interestRate - foreignRate.interestRate, volatility),
+    : RiskyDynamics(domesticRate.interestRate, volatility),
       foreignInterestRate(foreignRate),
       domesticInterestRate(domesticRate) {}
 

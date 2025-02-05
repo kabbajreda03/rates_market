@@ -1,26 +1,30 @@
 #ifndef OPTION_HPP
 #define OPTION_HPP
 
-#include <vector>
-#include "InterestRateModel.hpp"
 #include "ITimeGrid.hpp"
+#include "InterestRateModel.hpp"
+#include <vector>
+#include <string>
+#include "pnl/pnl_vector.h"
 
 class Option {
 public:
-    int* assetCurrencyMapping;  // Cartographie des actifs aux devises
-    std::vector<InterestRateModel> foreignInterestRates;  // Taux d'intérêt pour chaque devise étrangère
-    InterestRateModel domesticInterestRate;  // Taux d'intérêt domestique
-    ITimeGrid monitoringTimeGrid;  // Grille de temps pour le suivi des données
+    // Attributs
+    std::vector<int> assetCurrencyMapping;
+    std::vector<InterestRateModel> foreignInterestRates;
+    InterestRateModel domesticInterestRate;
+    ITimeGrid* monitoringTimeGrid;
 
     // Constructeur
-    Option(int* assetMapping, std::vector<InterestRateModel> foreignRates, InterestRateModel domesticRate, ITimeGrid timeGrid)
-        : assetCurrencyMapping(assetMapping), foreignInterestRates(foreignRates), domesticInterestRate(domesticRate), monitoringTimeGrid(timeGrid) {}
+    Option(const std::vector<int>& assetCurrencyMapping,
+           const std::vector<InterestRateModel>& foreignInterestRates,
+           const InterestRateModel& domesticInterestRate,
+           ITimeGrid* monitoringTimeGrid);
 
-    // Méthode virtuelle pour le calcul du payoff
-    virtual double payoff() = 0;  // À implémenter dans les classes dérivées
+    // Méthode virtuelle pure pour calculer le payoff
+    virtual double payoff(PnlMat *path) const = 0;
 
-    // Destructeur
     virtual ~Option() {}
 };
 
-#endif
+#endif //OPTION_HPP
