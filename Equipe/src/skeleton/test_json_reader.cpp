@@ -120,15 +120,17 @@ int main(int argc, char **argv) {
         parser.generateAssets(riskyAssets);
         InterestRateModel domesticRate(parser.domesticInterestRate);
         GlobalModel globalModel(riskyAssets, currencies, parser.FixingDatesManager, domesticRate);
-        PnlMat* past = pnl_mat_create(1, 1);
-        parser.generatePastMatrix(past, 0);
+        PnlMat* past = pnl_mat_create(1, 3);
+        parser.generatePastMatrix(past, 126);
+        pnl_mat_print(past);
         Option* option = parser.getOption();
         MonteCarlo* mc = new MonteCarlo(option, globalModel, &parser);
         double price = 0.0;
         double priceStdDev = 0.0;
-        mc->priceAndDelta(past, 0, price, priceStdDev, NULL, NULL);
+        mc->priceAndDelta(past, 126, price, priceStdDev, NULL, NULL);
         std::cout << "price: " << price << std::endl;
         std::cout << "Standard Deviation of price: " << priceStdDev << std::endl;
         std::cout << "THE END: " << std::endl;
+
 
 }

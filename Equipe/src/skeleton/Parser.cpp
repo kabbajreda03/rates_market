@@ -79,9 +79,11 @@ Parser::Parser(char* jsonFile, char* csvFile) {
 
     // Récupérer la matrice de corrélation
     auto correlations = jsonParams.at("Correlations");
-    correlationMatrix = pnl_mat_create(correlations.size(), correlations[0].size());
-    for (int i = 0; i < correlationMatrix->m; ++i) {
-        for (int j = 0; j < correlationMatrix->n; ++j) {
+    size_t rows = correlations.size();
+    size_t cols = rows > 0 ? correlations[0].size() : 0;
+    correlationMatrix = pnl_mat_create(rows, cols);
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
             MLET(correlationMatrix, i, j) = correlations[i][j].get<double>();
         }
     }
@@ -136,7 +138,7 @@ void Parser::generateCurrencies(std::vector<Currency>& currenciesVect) {
     if (currenciesSize != 0) {
         InterestRateModel domesticRate(domesticInterestRate);
         PnlVect* currencyVolLine = pnl_vect_create(choleskyMatrix->n);
-        for (int i = 0; i < assetsSize; i++) {
+        for (int i = 0; i < currenciesSize; i++) {
             InterestRateModel foreignRate(GET(foreignInterestRate, i));
             pnl_mat_get_row(currencyVolLine, choleskyMatrix, assetsSize + i);
             pnl_vect_mult_scalar(currencyVolLine, GET(volatilityCurrencyVector, i));
@@ -175,12 +177,10 @@ void Parser::generatePastMatrix(PnlMat* past, int t) {
     PnlVect* riskFreeAsset = pnl_vect_create_from_scalar(past->m, 0.0);
     for (int i = 0; i < currenciesSize; i++) {
         // On crée une liste des prix de l'actif sans risque dans les dates de constatation
-        if (t != 0) {
-            for (int j = 0; j < riskFreeAsset->size-1; j++) {
-                LET(riskFreeAsset, j) = GET(FixingDatesManager->dates, j);
-            }
-            LET(riskFreeAsset, past->m-1) = t;
+        for (int j = 0; j < riskFreeAsset->size-1; j++) {
+            LET(riskFreeAsset, j) = GET(FixingDatesManager->dates, j);
         }
+        LET(riskFreeAsset, past->m-1) = t;
 
         double foreignRate = GET(foreignInterestRate, i);
         for (int j = 0; j < riskFreeAsset->size; j++) {

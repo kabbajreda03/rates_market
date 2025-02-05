@@ -15,7 +15,7 @@ RiskyDynamics::~RiskyDynamics() {
 
 // Méthode pour échantillonner la prochaine date de l'actif risqué
 void RiskyDynamics::sampleNextDate(double spot, PnlMat* path, int i, int j, int timestep, PnlVect* gaussianVector) const {
-  double volatilityTerm = pnl_vect_scalar_prod(volatilityVector, gaussianVector) * std::sqrt((double) timestep/252);
-  double driftTerm = ( drift - pnl_vect_scalar_prod(volatilityVector , volatilityVector)/2) * (double) timestep/252;
+  double volatilityTerm = pnl_vect_scalar_prod(volatilityVector, gaussianVector) * std::sqrt(static_cast<double>(timestep)/252);
+  double driftTerm = ( drift - pnl_vect_scalar_prod(volatilityVector , volatilityVector)/2) * static_cast<double>(timestep)/252;
   MLET(path, i, j) = spot * std::exp(driftTerm + volatilityTerm);
 }
